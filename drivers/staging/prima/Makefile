@@ -8,8 +8,6 @@ WLAN_ROOT := drivers/staging/prima
 CONFIG_QCOM_ESE := n
 CONFIG_QCOM_ESE_UPLOAD := n
 
-# Feature flags which are not (currently) configurable via Kconfig
-
 #Whether to build debug version
 BUILD_DEBUG_VERSION := 1
 
@@ -260,7 +258,6 @@ SME_RRM_OBJS := $(SME_SRC_DIR)/rrm/sme_rrm.o
 
 SME_NAN_OBJS = $(SME_SRC_DIR)/nan/nan_Api.o
 
-
 SME_OBJS :=	$(SME_BTC_OBJS) \
 		$(SME_CCM_OBJS) \
 		$(SME_CMN_OBJS) \
@@ -510,6 +507,7 @@ CDEFINES :=	-DANI_BUS_TYPE_PLATFORM=1 \
 		-DFEATURE_WLAN_LPHB \
                 -DFEATURE_WLAN_PAL_TIMER_DISABLE \
                 -DFEATURE_WLAN_PAL_MEM_DISABLE \
+                -DFEATURE_WLAN_CH144 \
                 -DWLAN_BUG_ON_SKB_ERROR \
                 -DWLAN_DXE_LOW_RESOURCE_TIMER \
                 -DWLAN_LOGGING_SOCK_SVC_ENABLE \
@@ -595,13 +593,7 @@ ifeq ($(RE_ENABLE_WIFI_ON_WDI_TIMEOUT),1)
 CDEFINES += -DWDI_RE_ENABLE_WIFI_ON_WDI_TIMEOUT
 endif
 
-ifeq ($(KERNEL_BUILD),1)
 CDEFINES += -DWLAN_OPEN_SOURCE
-endif
-
-ifeq ($(findstring opensource, $(WLAN_ROOT)), opensource)
-CDEFINES += -DWLAN_OPEN_SOURCE
-endif
 
 ifeq ($(CONFIG_ENABLE_LINUX_REG), y)
 CDEFINES += -DCONFIG_ENABLE_LINUX_REG
@@ -610,14 +602,11 @@ endif
 CDEFINES += -DFEATURE_WLAN_CH_AVOID
 CDEFINES += -DWLAN_FEATURE_AP_HT40_24G
 
-# Some kernel include files are being moved.  Check to see if
-# the old version of the files are present
-
-ifneq ($(wildcard $(srctree)/arch/$(SRCARCH)/mach-msm/include/mach/msm_smd.h),)
+ifeq ($(EXISTS_MSM_SMD),1)
 CDEFINES += -DEXISTS_MSM_SMD
 endif
 
-ifneq ($(wildcard $(srctree)/arch/$(SRCARCH)/mach-msm/include/mach/msm_smsm.h),)
+ifeq ($(EXISTS_MSM_SMSM),1)
 CDEFINES += -DEXISTS_MSM_SMSM
 endif
 
